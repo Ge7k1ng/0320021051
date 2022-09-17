@@ -1,0 +1,25 @@
+
+from bs4 import BeautifulSoup
+from lxml import etree
+import requests
+if __name__=="__main__":
+
+    headers = {
+        'User - Agent': 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.33',
+        'Cookie': 'yfx_c_g_u_id_10006654 = _ck22091512183215997915178228156;_gscu_2059686908 = 632182588vvqxg10;sVoELocvxVW0S = 5EYvoUhnjk26tDpJ49dlo8q_.O8_hInykK66j7qp7mR6NccsrGHWWHsj2ZBe9__A8Xevr9Pew36BQtqi6M_E_qa;insert_cookie = 96816998;security_session_verify = 6dc8c5addec7a9063f2d926519b59d42;yfx_f_l_v_t_10006654 = f_t_1663215512592__r_t_1663399099211__v_t_1663399099211__r_c_3;sVoELocvxVW0T = 53nY0XbW2wh7qqqDk19dgoG_lNDRk819qWx1GKzxj_lWxVRkVNyYzCmgXWXRsqe4uqijTOWoECPS3ea7BF8k2TL0qLIs0k6o9MK6D6_mmYtIbW9RWwGIBr4FDuZSEU3LgfDoMzmbAH7EH3SGwPHyOr_2YRmHb8PJUiISrRv.MGzi5Jy7QtEZIi.dI7_vhFHBibQtTrveutrKiQezSWMpIt3MEPoA6P09nEOZSuWYH_cRsDFHO05EjQUuKnX3_wy_jh1d_m6viJJAYrCIQLq8V3ClGZDxX_QPB7zbQ.M3R4B80EUv8SfYJ0pyZkAuoaN9Eg'
+    }
+    url = "http://www.nhc.gov.cn/xcs/yqtb/list_gzbd.shtml"
+    page_text = requests.get(url=url, headers=headers).text
+    tree = etree.HTML(page_text)
+    new_url_index_list = tree.xpath('//a/@href')
+    fp = open('./yiqing2.txt', 'w', encoding='utf-8')
+    for i in range(0, len(new_url_index_list)):
+        if new_url_index_list[i].startswith("/xcs/yqtb/") and new_url_index_list[i] is not url:
+            new_url_text = requests.get(url="http://www.nhc.gov.cn" + str(new_url_index_list[i]),
+                                        headers=headers).text
+            new_url_soup = BeautifulSoup(new_url_text, 'lxml')
+            div_tag = new_url_soup.find('div', class_="con", id='xw_box')
+            content = div_tag.text
+            print(content)
+            fp.write(content)
+            
